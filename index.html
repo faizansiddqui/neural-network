@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Set up scene, camera, and renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create a simple terrain
+        const terrainGeometry = new THREE.PlaneGeometry(100, 100, 100, 100);
+        const terrainMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+        terrain.rotation.x = -Math.PI / 2; // Rotate to lay flat
+        scene.add(terrain);
+
+        // Create a simple car
+        const carGeometry = new THREE.BoxGeometry(2, 1, 1);
+        const carMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const car = new THREE.Mesh(carGeometry, carMaterial);
+        car.position.set(0, 0.5, 0);
+        scene.add(car);
+
+        // Set camera position
+        camera.position.y = 5;
+        camera.lookAt(car.position);
+
+        // Handle keyboard input for car movement
+        const keyboardState = {};
+        window.addEventListener('keydown', (event) => {
+            keyboardState[event.key] = true;
+        });
+        window.addEventListener('keyup', (event) => {
+            keyboardState[event.key] = false;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Move car based on keyboard input
+            if (keyboardState['ArrowUp']) {
+                car.position.z -= 0.1;
+            }
+            if (keyboardState['ArrowDown']) {
+                car.position.z += 0.1;
+            }
+            if (keyboardState['ArrowLeft']) {
+                car.rotation.y += Math.PI / 180; // Rotate left
+            }
+            if (keyboardState['ArrowRight']) {
+                car.rotation.y -= Math.PI / 180; // Rotate right
+            }
+
+            // Move camera with the car
+            const distance = 10; // Distance from car
+            const angle = car.rotation.y; // Angle of car
+            camera.position.x = car.position.x - distance * Math.sin(angle);
+            camera.position.z = car.position.z - distance * Math.cos(angle);
+
+            camera.lookAt(car.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
